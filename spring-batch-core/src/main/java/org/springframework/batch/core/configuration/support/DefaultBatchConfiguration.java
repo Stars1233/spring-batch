@@ -79,7 +79,6 @@ import org.springframework.transaction.annotation.Isolation;
  *
  * <ul>
  * <li>a {@link JobRepository} named "jobRepository"</li>
- * <li>a {@link JobExplorer} named "jobExplorer"</li>
  * <li>a {@link JobLauncher} named "jobLauncher"</li>
  * <li>a {@link JobRegistry} named "jobRegistry"</li>
  * <li>a {@link JobOperator} named "JobOperator"</li>
@@ -170,26 +169,6 @@ public class DefaultBatchConfiguration implements ApplicationContextAware {
 	}
 
 	@Bean
-	public JobExplorer jobExplorer() throws BatchConfigurationException {
-		JobExplorerFactoryBean jobExplorerFactoryBean = new JobExplorerFactoryBean();
-		jobExplorerFactoryBean.setDataSource(getDataSource());
-		jobExplorerFactoryBean.setTransactionManager(getTransactionManager());
-		jobExplorerFactoryBean.setJdbcOperations(getJdbcOperations());
-		jobExplorerFactoryBean.setJobKeyGenerator(getJobKeyGenerator());
-		jobExplorerFactoryBean.setCharset(getCharset());
-		jobExplorerFactoryBean.setTablePrefix(getTablePrefix());
-		jobExplorerFactoryBean.setConversionService(getConversionService());
-		jobExplorerFactoryBean.setSerializer(getExecutionContextSerializer());
-		try {
-			jobExplorerFactoryBean.afterPropertiesSet();
-			return jobExplorerFactoryBean.getObject();
-		}
-		catch (Exception e) {
-			throw new BatchConfigurationException("Unable to configure the default job explorer", e);
-		}
-	}
-
-	@Bean
 	public JobRegistry jobRegistry() throws BatchConfigurationException {
 		return new MapJobRegistry();
 	}
@@ -197,7 +176,6 @@ public class DefaultBatchConfiguration implements ApplicationContextAware {
 	/**
 	 * Define a job operator bean.
 	 * @param jobRepository a job repository
-	 * @param jobExplorer a job explorer
 	 * @param jobRegistry a job registry
 	 * @param jobLauncher a job launcher
 	 * @return a job operator
@@ -205,12 +183,11 @@ public class DefaultBatchConfiguration implements ApplicationContextAware {
 	 * @since 5.2
 	 */
 	@Bean
-	public JobOperator jobOperator(JobRepository jobRepository, JobExplorer jobExplorer, JobRegistry jobRegistry,
-			JobLauncher jobLauncher) throws BatchConfigurationException {
+	public JobOperator jobOperator(JobRepository jobRepository, JobRegistry jobRegistry, JobLauncher jobLauncher)
+			throws BatchConfigurationException {
 		JobOperatorFactoryBean jobOperatorFactoryBean = new JobOperatorFactoryBean();
 		jobOperatorFactoryBean.setTransactionManager(getTransactionManager());
 		jobOperatorFactoryBean.setJobRepository(jobRepository);
-		jobOperatorFactoryBean.setJobExplorer(jobExplorer);
 		jobOperatorFactoryBean.setJobRegistry(jobRegistry);
 		jobOperatorFactoryBean.setJobLauncher(jobLauncher);
 		jobOperatorFactoryBean.setJobParametersConverter(getJobParametersConverter());
