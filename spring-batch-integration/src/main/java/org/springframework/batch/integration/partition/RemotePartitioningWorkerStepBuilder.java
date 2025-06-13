@@ -19,9 +19,9 @@ package org.springframework.batch.integration.partition;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.batch.core.repository.explore.JobExplorer;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.partition.Partitioner;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2023 the original author or authors.
+ * Copyright 2006-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.core;
+package org.springframework.batch.core.listener;
 
 /**
- * Exception for {@link Job} to signal that some {@link JobParameters} are invalid.
+ * Marker interface that acts as a parent to all step domain listeners, such as:
+ * {@link StepExecutionListener}, {@link ChunkListener}, {@link ItemReadListener}, and
+ * {@link ItemWriteListener}
  *
+ * @author Lucas Ward
  * @author Dave Syer
- * @author Mahmoud Ben Hassine
  *
  */
-public class JobParametersInvalidException extends JobExecutionException {
-
-	/**
-	 * Constructor that sets the message for the exception.
-	 * @param msg The {@link String} message for the {@link Exception}.
-	 */
-	public JobParametersInvalidException(String msg) {
-		super(msg);
-	}
+public interface StepListener {
 
 }
