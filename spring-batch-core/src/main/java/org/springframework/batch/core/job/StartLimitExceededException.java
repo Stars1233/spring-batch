@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2022 the original author or authors.
+ * Copyright 2006-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.batch.core;
+
+package org.springframework.batch.core.job;
 
 /**
- * Marker interface that acts as a parent to all step domain listeners, such as:
- * {@link StepExecutionListener}, {@link ChunkListener}, {@link ItemReadListener}, and
- * {@link ItemWriteListener}
- *
- * @author Lucas Ward
- * @author Dave Syer
- *
+ * Indicates the step's start limit has been exceeded.
  */
-public interface StepListener {
+public class StartLimitExceededException extends RuntimeException {
+
+	/**
+	 * Constructor that sets the message for the exception.
+	 * @param message The message for the exception.
+	 */
+	public StartLimitExceededException(String message) {
+		super(message);
+	}
 
 }

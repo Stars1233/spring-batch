@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.configuration.DuplicateJobException;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.StepRegistry;
@@ -46,7 +46,9 @@ import org.springframework.util.Assert;
  * @author Dave Syer
  * @author Stephane Nicoll
  * @author Mahmoud Ben Hassine
+ * @deprecated since 6.0 with no replacement. Scheduled for removal in 6.2 or later.
  */
+@Deprecated(since = "6.0", forRemoval = true)
 public class DefaultJobLoader implements JobLoader, InitializingBean {
 
 	private static final Log logger = LogFactory.getLog(DefaultJobLoader.class);

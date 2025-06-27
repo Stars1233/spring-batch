@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2022 the original author or authors.
+ * Copyright 2006-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.springframework.batch.core.converter;
 
 import java.util.Properties;
 
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.lang.Nullable;
 
 /**
@@ -30,8 +30,9 @@ import org.springframework.lang.Nullable;
  * @author Dave Syer
  * @author Mahmoud Ben Hassine
  * @see JobParametersBuilder
- *
+ * @deprecated since 6.0 with no replacement, scheduled for removal in 6.2 or later.
  */
+@Deprecated(since = "6.0", forRemoval = true)
 public interface JobParametersConverter {
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 the original author or authors.
+ * Copyright 2022-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.springframework.batch.core.converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.batch.core.JobParameter;
-import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParameter;
+import org.springframework.batch.core.job.parameters.JobParameters;
 
 /**
  * Converter for {@link JobParameters} instances that uses a JSON naming convention for
@@ -63,8 +63,9 @@ import org.springframework.batch.core.JobParameters;
  *
  * @author Mahmoud Ben Hassine
  * @since 5.0
- *
+ * @deprecated since 6.0 with no replacement, scheduled for removal in 6.2 or later.
  */
+@Deprecated(since = "6.0", forRemoval = true)
 public class JsonJobParametersConverter extends DefaultJobParametersConverter {
 
 	private final ObjectMapper objectMapper;
