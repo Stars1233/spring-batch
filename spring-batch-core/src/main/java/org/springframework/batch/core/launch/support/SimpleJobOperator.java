@@ -29,17 +29,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.UnexpectedJobExecutionException;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.job.parameters.JobParametersInvalidException;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.step.StepExecution;
+import org.springframework.batch.core.job.UnexpectedJobExecutionException;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.configuration.ListableJobLocator;
 import org.springframework.batch.core.converter.DefaultJobParametersConverter;
 import org.springframework.batch.core.converter.JobParametersConverter;
 import org.springframework.batch.core.launch.JobExecutionNotRunningException;
@@ -90,7 +89,7 @@ public class SimpleJobOperator extends TaskExecutorJobLauncher implements JobOpe
 	private static final String ILLEGAL_STATE_MSG = "Illegal state (only happens on a race condition): "
 			+ "%s with name=%s and parameters=%s";
 
-	protected ListableJobLocator jobRegistry;
+	protected JobRegistry jobRegistry;
 
 	protected JobParametersConverter jobParametersConverter = new DefaultJobParametersConverter();
 
@@ -110,6 +109,7 @@ public class SimpleJobOperator extends TaskExecutorJobLauncher implements JobOpe
 	/**
 	 * Public setter for the {@link JobParametersConverter}.
 	 * @param jobParametersConverter the {@link JobParametersConverter} to set
+	 * @deprecated since 6.0 with no replacement. Scheduled for removal in 6.2 or later.
 	 */
 	@Deprecated(since = "6.0", forRemoval = true)
 	public void setJobParametersConverter(JobParametersConverter jobParametersConverter) {
@@ -117,10 +117,10 @@ public class SimpleJobOperator extends TaskExecutorJobLauncher implements JobOpe
 	}
 
 	/**
-	 * Public setter for the {@link ListableJobLocator}.
-	 * @param jobRegistry the {@link ListableJobLocator} to set
+	 * Public setter for the {@link JobRegistry}.
+	 * @param jobRegistry the {@link JobRegistry} to set
 	 */
-	public void setJobRegistry(ListableJobLocator jobRegistry) {
+	public void setJobRegistry(JobRegistry jobRegistry) {
 		this.jobRegistry = jobRegistry;
 	}
 
