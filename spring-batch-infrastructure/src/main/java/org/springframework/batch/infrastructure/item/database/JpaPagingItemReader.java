@@ -113,6 +113,13 @@ public class JpaPagingItemReader<T> extends AbstractPagingItemReader<T> {
 		this.entityManagerFactory = entityManagerFactory;
 	}
 
+	/**
+	 * Set the EntityManager to be used internally.
+	 * @param entityManagerFactory the entityManagerFactory to set
+	 * @deprecated since 6.1 in favor of passing the entity manager factory to the
+	 * constructor. Scheduled for removal in 7.0.
+	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
 		this.entityManagerFactory = entityManagerFactory;
 	}
