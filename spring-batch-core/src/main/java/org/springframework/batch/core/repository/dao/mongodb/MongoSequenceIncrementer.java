@@ -27,11 +27,13 @@ import org.springframework.core.retry.RetryPolicy;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.batch.core.repository.dao.AbstractMongoBatchMetadataDao;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 // Based on https://www.mongodb.com/blog/post/generating-globally-unique-identifiers-for-use-with-mongodb
 // Section: Use a single counter document to generate unique identifiers one at a time
@@ -43,6 +45,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @since 5.2.0
  */
 public class MongoSequenceIncrementer implements DataFieldMaxValueIncrementer {
+
+	private static final String SEQUENCES_COLLECTION_NAME = "SEQUENCES";
 
 	/*
 	 * Retry template to handle errors when incrementing the sequence value
@@ -60,6 +64,8 @@ public class MongoSequenceIncrementer implements DataFieldMaxValueIncrementer {
 
 	private final String sequenceName;
 
+	private final String sequencesCollectionName;
+
 	/*
 	 * Transaction template used to increment the sequence outside of any ongoing
 	 * transaction, when a transaction manager is provided.
@@ -68,8 +74,16 @@ public class MongoSequenceIncrementer implements DataFieldMaxValueIncrementer {
 	private final @Nullable TransactionTemplate transactionTemplate;
 
 	public MongoSequenceIncrementer(MongoOperations mongoTemplate, String sequenceName) {
+		this(mongoTemplate, sequenceName, AbstractMongoBatchMetadataDao.DEFAULT_COLLECTION_PREFIX);
+	}
+
+	public MongoSequenceIncrementer(MongoOperations mongoTemplate, String sequenceName, String collectionPrefix) {
+		Assert.notNull(mongoTemplate, "mongoTemplate must not be null.");
+		Assert.notNull(sequenceName, "sequenceName must not be null.");
+		Assert.notNull(collectionPrefix, "collectionPrefix must not be null.");
 		this.mongoTemplate = mongoTemplate;
-		this.sequenceName = sequenceName;
+		this.sequencesCollectionName = collectionPrefix + SEQUENCES_COLLECTION_NAME;
+		this.sequenceName = collectionPrefix + sequenceName;
 		this.transactionTemplate = null;
 	}
 
@@ -91,8 +105,27 @@ public class MongoSequenceIncrementer implements DataFieldMaxValueIncrementer {
 	 */
 	public MongoSequenceIncrementer(MongoOperations mongoTemplate, String sequenceName,
 			PlatformTransactionManager transactionManager) {
+		this(mongoTemplate, sequenceName, AbstractMongoBatchMetadataDao.DEFAULT_COLLECTION_PREFIX, transactionManager);
+	}
+
+	/**
+	 * Create a new {@link MongoSequenceIncrementer} that increments the sequence outside
+	 * of any ongoing transaction, using the given collection prefix.
+	 * @param mongoTemplate the {@link MongoOperations} to use
+	 * @param sequenceName the name of the sequence to increment
+	 * @param collectionPrefix the prefix of the batch metadata collections
+	 * @param transactionManager the transaction manager used to suspend any ongoing
+	 * transaction while incrementing the sequence
+	 * @since 6.1
+	 */
+	public MongoSequenceIncrementer(MongoOperations mongoTemplate, String sequenceName, String collectionPrefix,
+			PlatformTransactionManager transactionManager) {
+		Assert.notNull(mongoTemplate, "mongoTemplate must not be null.");
+		Assert.notNull(sequenceName, "sequenceName must not be null.");
+		Assert.notNull(collectionPrefix, "collectionPrefix must not be null.");
 		this.mongoTemplate = mongoTemplate;
-		this.sequenceName = sequenceName;
+		this.sequencesCollectionName = collectionPrefix + SEQUENCES_COLLECTION_NAME;
+		this.sequenceName = collectionPrefix + sequenceName;
 		TransactionTemplate template = new TransactionTemplate(transactionManager);
 		template.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
 		this.transactionTemplate = template;
@@ -110,7 +143,7 @@ public class MongoSequenceIncrementer implements DataFieldMaxValueIncrementer {
 	private long incrementSequence() throws DataAccessException {
 		try {
 			return retryTemplate
-				.execute(() -> mongoTemplate.execute("BATCH_SEQUENCES", collection -> collection
+				.execute(() -> mongoTemplate.execute(sequencesCollectionName, collection -> collection
 					.findOneAndUpdate(new Document("_id", sequenceName), new Document("$inc", new Document("count", 1)),
 							new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER))
 					.getLong("count")));
