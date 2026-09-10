@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2026-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,11 @@
  */
 package org.springframework.batch.core.configuration.support;
 
-import java.util.Map;
-
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
@@ -41,50 +39,51 @@ import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
+ * Tests for the collection prefix of the programmatic MongoDB configuration.
+ *
  * @author Myeongha Shin
+ * @author Mahmoud Ben Hassine
  */
 @DirtiesContext
 @Testcontainers(disabledWithoutDocker = true)
 @SpringJUnitConfig(MongoDefaultBatchConfigurationTests.MyJobConfiguration.class)
 class MongoDefaultBatchConfigurationTests {
 
-	private static final String COLLECTION_PREFIX = "TEST_COLLECTION_PREFIX_";
+	private static final String COLLECTION_PREFIX = "MY_APP_";
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
 	@BeforeEach
 	void setUp() {
-		createCollections(this.mongoTemplate);
+		this.mongoTemplate.createCollection(COLLECTION_PREFIX + "JOB_INSTANCE");
+		this.mongoTemplate.createCollection(COLLECTION_PREFIX + "JOB_EXECUTION");
+		this.mongoTemplate.createCollection(COLLECTION_PREFIX + "STEP_EXECUTION");
+		MongoCollection<Document> sequences = this.mongoTemplate.createCollection(COLLECTION_PREFIX + "SEQUENCES");
+		sequences.insertOne(new Document("_id", COLLECTION_PREFIX + "JOB_INSTANCE_SEQ").append("count", 0L));
+		sequences.insertOne(new Document("_id", COLLECTION_PREFIX + "JOB_EXECUTION_SEQ").append("count", 0L));
+		sequences.insertOne(new Document("_id", COLLECTION_PREFIX + "STEP_EXECUTION_SEQ").append("count", 0L));
 	}
 
 	@Test
 	void testCustomCollectionPrefix(@Autowired JobOperator jobOperator, @Autowired Job job) throws Exception {
+		// when
 		JobExecution jobExecution = jobOperator.start(job, new JobParameters());
 
-		Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
-		Assertions.assertEquals(1, mongoTemplate.getCollection(COLLECTION_PREFIX + "JOB_INSTANCE").countDocuments());
-		Assertions.assertEquals(1, mongoTemplate.getCollection(COLLECTION_PREFIX + "JOB_EXECUTION").countDocuments());
-		Assertions.assertEquals(1, mongoTemplate.getCollection(COLLECTION_PREFIX + "STEP_EXECUTION").countDocuments());
-		Assertions.assertFalse(mongoTemplate.collectionExists("BATCH_JOB_INSTANCE"));
-		Assertions.assertFalse(mongoTemplate.collectionExists("BATCH_JOB_EXECUTION"));
-		Assertions.assertFalse(mongoTemplate.collectionExists("BATCH_STEP_EXECUTION"));
-	}
-
-	private void createCollections(MongoTemplate mongoTemplate) {
-		mongoTemplate.createCollection(COLLECTION_PREFIX + "JOB_INSTANCE");
-		mongoTemplate.createCollection(COLLECTION_PREFIX + "JOB_EXECUTION");
-		mongoTemplate.createCollection(COLLECTION_PREFIX + "STEP_EXECUTION");
-		mongoTemplate.createCollection(COLLECTION_PREFIX + "SEQUENCES");
-		MongoCollection<Document> sequencesCollection = mongoTemplate.getCollection(COLLECTION_PREFIX + "SEQUENCES");
-		sequencesCollection.insertOne(new Document(Map.of("_id", COLLECTION_PREFIX + "JOB_INSTANCE_SEQ", "count", 0L)));
-		sequencesCollection
-			.insertOne(new Document(Map.of("_id", COLLECTION_PREFIX + "JOB_EXECUTION_SEQ", "count", 0L)));
-		sequencesCollection
-			.insertOne(new Document(Map.of("_id", COLLECTION_PREFIX + "STEP_EXECUTION_SEQ", "count", 0L)));
+		// then
+		assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
+		assertEquals(1, this.mongoTemplate.getCollection(COLLECTION_PREFIX + "JOB_INSTANCE").countDocuments());
+		assertEquals(1, this.mongoTemplate.getCollection(COLLECTION_PREFIX + "JOB_EXECUTION").countDocuments());
+		assertEquals(1, this.mongoTemplate.getCollection(COLLECTION_PREFIX + "STEP_EXECUTION").countDocuments());
+		assertFalse(this.mongoTemplate.collectionExists("BATCH_JOB_INSTANCE"));
+		assertFalse(this.mongoTemplate.collectionExists("BATCH_JOB_EXECUTION"));
+		assertFalse(this.mongoTemplate.collectionExists("BATCH_STEP_EXECUTION"));
+		assertFalse(this.mongoTemplate.collectionExists("BATCH_SEQUENCES"));
 	}
 
 	@Configuration

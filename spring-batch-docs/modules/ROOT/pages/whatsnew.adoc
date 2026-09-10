@@ -6,6 +6,7 @@ This section highlights the major changes in Spring Batch 6.1. For the complete 
 Spring Batch 6.1 includes the following features and improvements:
 
 * xref:whatsnew.adoc#dependencies-upgrade[Dependencies upgrade]
+* xref:whatsnew.adoc#collection-prefix-for-the-mongodb-job-repository[Collection prefix for the MongoDB job repository]
 * xref:whatsnew.adoc#deprecations[Deprecations]
 
 [[dependencies-upgrade]]
@@ -20,6 +21,30 @@ In this release, Spring dependencies are upgraded to the following versions:
 * Spring AMQP 4.2
 * Spring Kafka 4.2
 * Micrometer 1.18
+
+[[collection-prefix-for-the-mongodb-job-repository]]
+== Collection prefix for the MongoDB job repository
+
+The MongoDB job repository now supports a configurable collection prefix, similar to the
+table prefix of the JDBC job repository. This makes it possible to run several
+applications against the same MongoDB database, or to isolate environments from each
+other:
+
+[source, java]
+----
+@EnableBatchProcessing
+@EnableMongoJobRepository(collectionPrefix = "MY_APP_")
+class MyJobConfiguration {
+
+	// job definition omitted
+
+}
+----
+
+The prefix defaults to `BATCH_`, so existing applications are not affected. For more
+details, please refer to the
+xref:job/configuring-repository.adoc#repositoryCollectionPrefix[Changing the Collection Prefix]
+section.
 
 [[deprecations]]
 == Deprecations

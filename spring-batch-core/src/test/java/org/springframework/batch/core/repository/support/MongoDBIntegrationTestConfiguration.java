@@ -24,19 +24,29 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.testcontainers.mongodb.MongoDBContainer;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * @author Mahmoud Ben Hassine
  * @author Yanming Zhou
  */
 @Configuration
-@Import(MongoDBTestInfrastructureConfiguration.class)
 @EnableBatchProcessing
 @EnableMongoJobRepository
 class MongoDBIntegrationTestConfiguration {
+
+	private static final DockerImageName MONGODB_IMAGE = DockerImageName.parse("mongo:8.0.11");
+
+	@Bean(initMethod = "start")
+	public MongoDBContainer mongoDBContainer() {
+		return new MongoDBContainer(MONGODB_IMAGE).withReplicaSet();
+	}
 
 	@Bean
 	public JobRepository jobRepository(MongoTemplate mongoTemplate, MongoTransactionManager transactionManager)
@@ -46,6 +56,27 @@ class MongoDBIntegrationTestConfiguration {
 		jobRepositoryFactoryBean.setTransactionManager(transactionManager);
 		jobRepositoryFactoryBean.afterPropertiesSet();
 		return jobRepositoryFactoryBean.getObject();
+	}
+
+	@Bean
+	public MongoDatabaseFactory mongoDatabaseFactory(MongoDBContainer mongoDBContainer) {
+		return new SimpleMongoClientDatabaseFactory(mongoDBContainer.getConnectionString() + "/test");
+	}
+
+	@Bean
+	public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDatabaseFactory) {
+		MongoTemplate template = new MongoTemplate(mongoDatabaseFactory);
+		MappingMongoConverter converter = (MappingMongoConverter) template.getConverter();
+		converter.setMapKeyDotReplacement(".");
+		return template;
+	}
+
+	@Bean
+	public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
+		MongoTransactionManager mongoTransactionManager = new MongoTransactionManager();
+		mongoTransactionManager.setDatabaseFactory(mongoDatabaseFactory);
+		mongoTransactionManager.afterPropertiesSet();
+		return mongoTransactionManager;
 	}
 
 	@Bean

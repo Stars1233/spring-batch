@@ -70,6 +70,12 @@ public class MongoJobRepositoryFactoryBean extends AbstractJobRepositoryFactoryB
 		this.stepExecutionIncrementer = stepExecutionIncrementer;
 	}
 
+	/**
+	 * Set the prefix prepended to the batch metadata collections. Defaults to
+	 * {@link AbstractMongoBatchMetadataDao#DEFAULT_COLLECTION_PREFIX}.
+	 * @param collectionPrefix the prefix prepended to the batch metadata collections
+	 * @since 6.1.0
+	 */
 	public void setCollectionPrefix(String collectionPrefix) {
 		Assert.notNull(collectionPrefix, "Collection prefix must not be null.");
 		this.collectionPrefix = collectionPrefix;
@@ -113,9 +119,9 @@ public class MongoJobRepositoryFactoryBean extends AbstractJobRepositoryFactoryB
 
 	@Override
 	protected MongoExecutionContextDao createExecutionContextDao() {
-		MongoExecutionContextDao executionContextDao = new MongoExecutionContextDao(this.mongoOperations);
-		executionContextDao.setCollectionPrefix(this.collectionPrefix);
-		return executionContextDao;
+		MongoExecutionContextDao mongoExecutionContextDao = new MongoExecutionContextDao(this.mongoOperations);
+		mongoExecutionContextDao.setCollectionPrefix(this.collectionPrefix);
+		return mongoExecutionContextDao;
 	}
 
 	@Override
@@ -125,17 +131,26 @@ public class MongoJobRepositoryFactoryBean extends AbstractJobRepositoryFactoryB
 		PlatformTransactionManager transactionManager = getTransactionManager();
 		Assert.notNull(transactionManager, "TransactionManager must not be null.");
 		if (this.jobInstanceIncrementer == null) {
-			this.jobInstanceIncrementer = new MongoSequenceIncrementer(this.mongoOperations, "JOB_INSTANCE_SEQ",
-					this.collectionPrefix, transactionManager);
+			this.jobInstanceIncrementer = createSequenceIncrementer(
+					AbstractMongoBatchMetadataDao.DEFAULT_JOB_INSTANCE_INCREMENTER_NAME, transactionManager);
 		}
 		if (this.jobExecutionIncrementer == null) {
-			this.jobExecutionIncrementer = new MongoSequenceIncrementer(this.mongoOperations, "JOB_EXECUTION_SEQ",
-					this.collectionPrefix, transactionManager);
+			this.jobExecutionIncrementer = createSequenceIncrementer(
+					AbstractMongoBatchMetadataDao.DEFAULT_JOB_EXECUTION_INCREMENTER_NAME, transactionManager);
 		}
 		if (this.stepExecutionIncrementer == null) {
-			this.stepExecutionIncrementer = new MongoSequenceIncrementer(this.mongoOperations, "STEP_EXECUTION_SEQ",
-					this.collectionPrefix, transactionManager);
+			this.stepExecutionIncrementer = createSequenceIncrementer(
+					AbstractMongoBatchMetadataDao.DEFAULT_STEP_EXECUTION_INCREMENTER_NAME, transactionManager);
 		}
+	}
+
+	private MongoSequenceIncrementer createSequenceIncrementer(String sequenceName,
+			PlatformTransactionManager transactionManager) {
+		Assert.notNull(this.mongoOperations, "MongoOperations must not be null.");
+		MongoSequenceIncrementer incrementer = new MongoSequenceIncrementer(this.mongoOperations,
+				this.collectionPrefix + sequenceName, transactionManager);
+		incrementer.setCollectionPrefix(this.collectionPrefix);
+		return incrementer;
 	}
 
 }

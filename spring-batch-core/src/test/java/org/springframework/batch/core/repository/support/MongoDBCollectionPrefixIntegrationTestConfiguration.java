@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2026-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package org.springframework.batch.core.repository.support;
 
-import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.EnableMongoJobRepository;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -28,17 +28,20 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.MongoTransactionManager;
 
 /**
- * Test configuration for MongoDB collection prefix functionality
+ * Test configuration for a MongoDB job repository using a custom collection prefix. The
+ * job repository is configured through {@link EnableMongoJobRepository} only, so that the
+ * prefix is exercised end-to-end from the annotation down to the DAOs.
  *
  * @author Myeongha Shin
+ * @author Mahmoud Ben Hassine
  */
 @Configuration
-@Import(MongoDBTestInfrastructureConfiguration.class)
 @EnableBatchProcessing
-@EnableMongoJobRepository(collectionPrefix = "TEST_COLLECTION_PREFIX_")
-class MongoDBCollectionPrefixTestConfiguration {
+@EnableMongoJobRepository(collectionPrefix = MongoDBCollectionPrefixIntegrationTestConfiguration.COLLECTION_PREFIX)
+@Import(MongoDBTestInfrastructureConfiguration.class)
+class MongoDBCollectionPrefixIntegrationTestConfiguration {
 
-	static final String COLLECTION_PREFIX = "TEST_COLLECTION_PREFIX_";
+	static final String COLLECTION_PREFIX = "MY_APP_";
 
 	@Bean
 	public Job job(JobRepository jobRepository, MongoTransactionManager transactionManager) {

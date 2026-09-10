@@ -33,7 +33,6 @@ import org.springframework.batch.core.converter.JsonJobParametersConverter;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.dao.mongodb.MongoJobInstanceDao;
 import org.springframework.batch.core.repository.dao.jdbc.JdbcExecutionContextDao;
 import org.springframework.batch.core.repository.dao.jdbc.JdbcJobExecutionDao;
 import org.springframework.batch.core.repository.dao.jdbc.JdbcJobInstanceDao;
@@ -217,18 +216,14 @@ class BatchRegistrarTests {
 	}
 
 	@Test
-	@DisplayName("Mongo collection prefix should be configured successfully with @EnableMongoJobRepository")
-	void testMongoCollectionPrefixConfiguredWithEnableMongoJobRepository() {
+	@DisplayName("Mongo job repository should honour the collection prefix set on @EnableMongoJobRepository")
+	void testMongoJobRepositoryConfiguredWithCustomCollectionPrefix() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				MongoJobConfigurationWithCustomCollectionPrefix.class);
+				MongoJobConfigurationWithCollectionPrefix.class);
 
-		JobRepository jobRepository = context.getBean(JobRepository.class);
-		MongoJobInstanceDao jobInstanceDao = (MongoJobInstanceDao) ReflectionTestUtils.getField(jobRepository,
-				"jobInstanceDao");
+		Object factoryBean = context.getBean("&jobRepository");
 
-		Assertions.assertNotNull(jobRepository);
-		Assertions.assertEquals("TEST_COLLECTION_PREFIX_JOB_INSTANCE",
-				ReflectionTestUtils.getField(jobInstanceDao, "collectionName"));
+		Assertions.assertEquals("MY_APP_", ReflectionTestUtils.getField(factoryBean, "collectionPrefix"));
 	}
 
 	@Configuration
@@ -370,8 +365,8 @@ class BatchRegistrarTests {
 
 	@Configuration
 	@EnableBatchProcessing
-	@EnableMongoJobRepository(collectionPrefix = "TEST_COLLECTION_PREFIX_")
-	public static class MongoJobConfigurationWithCustomCollectionPrefix {
+	@EnableMongoJobRepository(collectionPrefix = "MY_APP_")
+	public static class MongoJobConfigurationWithCollectionPrefix {
 
 		@Bean
 		public MongoOperations mongoTemplate() {

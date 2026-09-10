@@ -156,10 +156,10 @@ public class MongoDefaultBatchConfiguration extends DefaultBatchConfiguration {
 	}
 
 	/**
-	 * Return the prefix of Batch meta-data collections. Defaults to
+	 * Return the prefix prepended to the batch metadata collections. Defaults to
 	 * {@link AbstractMongoBatchMetadataDao#DEFAULT_COLLECTION_PREFIX}.
-	 * @return the prefix of meta-data collections
-	 * @since 6.1
+	 * @return the prefix prepended to the batch metadata collections
+	 * @since 6.1.0
 	 */
 	protected String getCollectionPrefix() {
 		return AbstractMongoBatchMetadataDao.DEFAULT_COLLECTION_PREFIX;
@@ -171,8 +171,7 @@ public class MongoDefaultBatchConfiguration extends DefaultBatchConfiguration {
 	 * @since 6.0
 	 */
 	protected DataFieldMaxValueIncrementer getJobInstanceIncrementer() {
-		return new MongoSequenceIncrementer(getMongoOperations(), "JOB_INSTANCE_SEQ", getCollectionPrefix(),
-				getTransactionManager());
+		return createSequenceIncrementer(AbstractMongoBatchMetadataDao.DEFAULT_JOB_INSTANCE_INCREMENTER_NAME);
 	}
 
 	/**
@@ -181,8 +180,7 @@ public class MongoDefaultBatchConfiguration extends DefaultBatchConfiguration {
 	 * @since 6.0
 	 */
 	protected DataFieldMaxValueIncrementer getJobExecutionIncrementer() {
-		return new MongoSequenceIncrementer(getMongoOperations(), "JOB_EXECUTION_SEQ", getCollectionPrefix(),
-				getTransactionManager());
+		return createSequenceIncrementer(AbstractMongoBatchMetadataDao.DEFAULT_JOB_EXECUTION_INCREMENTER_NAME);
 	}
 
 	/**
@@ -191,8 +189,15 @@ public class MongoDefaultBatchConfiguration extends DefaultBatchConfiguration {
 	 * @since 6.0
 	 */
 	protected DataFieldMaxValueIncrementer getStepExecutionIncrementer() {
-		return new MongoSequenceIncrementer(getMongoOperations(), "STEP_EXECUTION_SEQ", getCollectionPrefix(),
-				getTransactionManager());
+		return createSequenceIncrementer(AbstractMongoBatchMetadataDao.DEFAULT_STEP_EXECUTION_INCREMENTER_NAME);
+	}
+
+	private MongoSequenceIncrementer createSequenceIncrementer(String sequenceName) {
+		String collectionPrefix = getCollectionPrefix();
+		MongoSequenceIncrementer incrementer = new MongoSequenceIncrementer(getMongoOperations(),
+				collectionPrefix + sequenceName, getTransactionManager());
+		incrementer.setCollectionPrefix(collectionPrefix);
+		return incrementer;
 	}
 
 }
