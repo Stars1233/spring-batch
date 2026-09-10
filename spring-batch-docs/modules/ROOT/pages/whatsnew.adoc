@@ -7,6 +7,7 @@ Spring Batch 6.1 includes the following features and improvements:
 
 * xref:whatsnew.adoc#dependencies-upgrade[Dependencies upgrade]
 * xref:whatsnew.adoc#collection-prefix-for-the-mongodb-job-repository[Collection prefix for the MongoDB job repository]
+* xref:whatsnew.adoc#default-conversion-service-based-on-defaultformattingconversionservice[Default conversion service based on `DefaultFormattingConversionService`]
 * xref:whatsnew.adoc#deprecations[Deprecations]
 
 [[dependencies-upgrade]]
@@ -46,9 +47,43 @@ details, please refer to the
 xref:job/configuring-repository.adoc#repositoryCollectionPrefix[Changing the Collection Prefix]
 section.
 
+[[default-conversion-service-based-on-defaultformattingconversionservice]]
+== Default conversion service based on `DefaultFormattingConversionService`
+
+The job repository and job explorer now build their default `ConfigurableConversionService`
+on top of Spring Framework's `DefaultFormattingConversionService` instead of a set of
+hand-written converters. This is exposed through the new `ConversionServiceFactory`
+utility class:
+
+[source, java]
+----
+ConfigurableConversionService conversionService = ConversionServiceFactory.createConversionService();
+----
+
+The default conversion service keeps the same formats Spring Batch has always used for
+job parameters (`ISO_INSTANT` for `java.util.Date`, and the standard ISO formats for
+`LocalDate`, `LocalTime`, `LocalDateTime`, `ZonedDateTime`, and `OffsetDateTime`), while
+benefiting from the broader set of converters and formatters that
+`DefaultFormattingConversionService` provides out of the box. Existing extension points,
+such as `JdbcDefaultBatchConfiguration#getConversionService()` and the `setConversionService`
+setters on `JobRepositoryFactoryBean`, `JobExplorerFactoryBean`,
+`AbstractJdbcBatchMetadataDao`, and `DefaultJobParametersConverter`, are unaffected and can
+still be used to fully customize job parameter conversion.
+
+As a result, the previous custom converters (`DateToStringConverter`, `StringToDateConverter`,
+`LocalDateToStringConverter`, `StringToLocalDateConverter`, `LocalTimeToStringConverter`,
+`StringToLocalTimeConverter`, `LocalDateTimeToStringConverter`, and
+`StringToLocalDateTimeConverter`) are now deprecated. See the
+xref:whatsnew.adoc#deprecations[Deprecations] section for more details.
+
 [[deprecations]]
 == Deprecations
 
 The following features have been deprecated in Spring Batch 6.1:
 
 * Deprecate Apache Derby support (`DatabaseType.DERBY`, `DerbyPagingQueryProvider` and the Derby DDL scripts), scheduled for removal in version 7.0.0
+* Deprecate the legacy date/time converters (`DateToStringConverter`, `StringToDateConverter`, `LocalDateToStringConverter`, `StringToLocalDateConverter`, `LocalTimeToStringConverter`, `StringToLocalTimeConverter`, `LocalDateTimeToStringConverter` and `StringToLocalDateTimeConverter`) in favor of `ConversionServiceFactory#createConversionService()`, scheduled for removal in version 7.0.0
+* Deprecate `StepExecution#getJobExecutionId()` and `StepExecution#getJobParameters()` in favor of `StepExecution#getJobExecution()`, scheduled for removal in version 7.0
+* Deprecate `JobExecution#getJobInstanceId()` in favor of `JobExecution#getJobInstance()`, scheduled for removal in version 7.0
+* Deprecate `RepositoryItemReader#setSorts(Map)` and `RepositoryItemReader#setRepository(PagingAndSortingRepository)` in favor of passing the sorts and the repository to the constructor, scheduled for removal in version 7.0
+* Deprecate `RepositoryItemWriter#setRepository(CrudRepository)` in favor of passing the repository to the constructor, scheduled for removal in version 7.0
