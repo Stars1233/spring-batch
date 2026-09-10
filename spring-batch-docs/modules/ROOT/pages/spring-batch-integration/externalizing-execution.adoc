@@ -505,8 +505,8 @@ public PartitionHandler partitionHandler() {
 }
 
 @Bean
-public QueueChannel outboundReplies() {
-    return new QueueChannel();
+public DirectChannel outboundReplies() {
+    return new DirectChannel();
 }
 
 @Bean
@@ -643,9 +643,7 @@ The following example assumes an existing partitioned job and focuses on the
 <int:aggregator ref="partitionHandler" input-channel="inbound-staging"
     output-channel="outbound-replies"/>
 
-<int:channel id="outbound-replies">
-  <int:queue/>
-</int:channel>
+<int:channel id="outbound-replies"/>
 
 <bean id="stepLocator"
     class="org.springframework.batch.integration.partition.BeanFactoryStepLocator" />

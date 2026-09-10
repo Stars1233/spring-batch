@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.support.JdbcTransactionManager;
@@ -222,7 +221,7 @@ class RemotePartitioningManagerStepBuilderTests {
 
 		Object replyChannel = getField(messageChannelPartitionHandler, "replyChannel");
 		assertNotNull(replyChannel);
-		assertTrue(replyChannel instanceof QueueChannel);
+		assertTrue(replyChannel instanceof DirectChannel);
 
 		Object messagingGateway = getField(messageChannelPartitionHandler, "messagingGateway");
 		assertNotNull(messagingGateway);
