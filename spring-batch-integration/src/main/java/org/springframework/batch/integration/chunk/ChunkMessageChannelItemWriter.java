@@ -335,7 +335,7 @@ public class ChunkMessageChannelItemWriter<T>
 		}
 
 		public Long getJobInstanceId() {
-			return stepExecution.getJobExecution().getJobInstanceId();
+			return stepExecution.getJobExecution().getJobInstance().getId();
 		}
 
 		public void setStepExecution(StepExecution stepExecution) {

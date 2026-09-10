@@ -124,7 +124,7 @@ public class MongoJobInstanceDao extends AbstractMongoBatchMetadataDao implement
 
 	@Override
 	public JobInstance getJobInstance(JobExecution jobExecution) {
-		return getJobInstance(jobExecution.getJobInstanceId());
+		return getJobInstance(jobExecution.getJobInstance().getId());
 	}
 
 	@Override

@@ -493,7 +493,7 @@ class SimpleJobTests {
 		assertEquals(jobInstance,
 				this.jobRepository.getLastJobExecution(job.getName(), jobParameters).getJobInstance());
 		JobExecution jobExecution = this.jobRepository.getJobExecutions(jobInstance).get(0);
-		assertEquals(jobInstance.getId(), jobExecution.getJobInstanceId());
+		assertEquals(jobInstance.getId(), jobExecution.getJobInstance().getId());
 		assertEquals(status, jobExecution.getStatus());
 		if (exitStatus != null) {
 			assertEquals(exitStatus.getExitCode(), jobExecution.getExitStatus().getExitCode());

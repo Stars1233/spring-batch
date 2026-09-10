@@ -717,7 +717,7 @@ public class FlowJobTests {
 	private void checkRepository(BatchStatus status, ExitStatus exitStatus) {
 		JobInstance jobInstance = this.jobExecution.getJobInstance();
 		JobExecution other = this.jobRepository.getJobExecutions(jobInstance).get(0);
-		assertEquals(jobInstance.getId(), other.getJobInstanceId());
+		assertEquals(jobInstance.getId(), other.getJobInstance().getId());
 		assertEquals(status, other.getStatus());
 		if (exitStatus != null) {
 			assertEquals(exitStatus.getExitCode(), other.getExitStatus().getExitCode());

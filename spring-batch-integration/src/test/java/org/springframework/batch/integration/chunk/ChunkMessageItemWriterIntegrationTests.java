@@ -162,8 +162,8 @@ class ChunkMessageItemWriterIntegrationTests {
 		stepExecution.getExecutionContext().putInt(ChunkMessageChannelItemWriter.EXPECTED, 6);
 		stepExecution.getExecutionContext().putInt(ChunkMessageChannelItemWriter.ACTUAL, 4);
 		// And make the back log real
-		requests.send(getSimpleMessage(stepExecution.getJobExecution().getJobInstanceId(), "foo"));
-		requests.send(getSimpleMessage(stepExecution.getJobExecution().getJobInstanceId(), "bar"));
+		requests.send(getSimpleMessage(stepExecution.getJobExecution().getJobInstance().getId(), "foo"));
+		requests.send(getSimpleMessage(stepExecution.getJobExecution().getJobInstance().getId(), "bar"));
 		step.execute(stepExecution);
 
 		waitForResults(8, 10);
