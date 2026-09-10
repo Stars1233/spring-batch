@@ -145,8 +145,8 @@ public IntegrationFlow outboundFlow(ActiveMQConnectionFactory connectionFactory)
  * Configure inbound flow (replies coming from workers)
  */
 @Bean
-public QueueChannel replies() {
-    return new QueueChannel();
+public DirectChannel replies() {
+    return new DirectChannel();
 }
 
 @Bean
@@ -201,9 +201,7 @@ The following XML configuration provides a basic manager setup:
   <property name="replyChannel" ref="replies"/>
 </bean>
 
-<int:channel id="replies">
-  <int:queue/>
-</int:channel>
+<int:channel id="replies"/>
 
 <int-jms:message-driven-channel-adapter id="jmsReplies"
     destination-name="replies"

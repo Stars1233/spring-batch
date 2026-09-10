@@ -17,7 +17,6 @@ package org.springframework.batch.integration.chunk;
 
 import java.util.Arrays;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,9 +45,8 @@ import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.PollableChannel;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.util.StringUtils;
@@ -67,7 +65,7 @@ class ChunkMessageItemWriterIntegrationTests {
 
 	@Autowired
 	@Qualifier("replies")
-	private PollableChannel replies;
+	private SubscribableChannel replies;
 
 	private final SimpleStepFactoryBean<Object, Object> factory = new SimpleStepFactoryBean<>();
 
@@ -101,19 +99,6 @@ class ChunkMessageItemWriterIntegrationTests {
 		gateway.setReceiveTimeout(100);
 
 		TestItemWriter.count = 0;
-
-		// Drain queues
-		Message<?> message = replies.receive(10);
-		while (message != null) {
-			message = replies.receive(10);
-		}
-
-	}
-
-	@AfterEach
-	void tearDown() {
-		while (replies.receive(10L) != null) {
-		}
 	}
 
 	@Test
@@ -174,7 +159,7 @@ class ChunkMessageItemWriterIntegrationTests {
 	}
 
 	@Test
-	void testSimulatedRestartWithBadMessagesFromAnotherJob() throws Exception {
+	void testSimulatedRestartWithMessagesFromAnotherJobAreIgnored() throws Exception {
 
 		factory.setItemReader(
 				new ListItemReader<>(Arrays.asList(StringUtils.commaDelimitedListToStringArray("1,2,3,4,5,6"))));
@@ -190,13 +175,14 @@ class ChunkMessageItemWriterIntegrationTests {
 		// Speed up the eventual failure
 		writer.setMaxWaitTimeouts(2);
 
-		// And make the back log real
+		// A reply for some other job instance must be ignored rather than stolen: the
+		// step below is still missing one reply of its own, so it should simply time out.
 		requests.send(getSimpleMessage(4321L, "foo"));
 		step.execute(stepExecution);
 		assertEquals(BatchStatus.FAILED, stepExecution.getStatus());
 		assertEquals(ExitStatus.FAILED.getExitCode(), stepExecution.getExitStatus().getExitCode());
 		String message = stepExecution.getExitStatus().getExitDescription();
-		assertTrue(message.contains("wrong job"), "Message does not contain 'wrong job': " + message);
+		assertTrue(message.toLowerCase().contains("timed out"), "Message did not contain 'timed out': " + message);
 
 		waitForResults(1, 10);
 
