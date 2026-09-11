@@ -1,5 +1,5 @@
 /*
- * Copyright 2025-2026 the original author or authors.
+ * Copyright 2025-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import org.springframework.core.task.TaskExecutor;
  * @param <T> type of items
  * @author Mahmoud Ben Hassine
  * @since 6.0
- * @deprecated since 6.0.4 in favor of
+ * @deprecated since 6.1 in favor of
  * {@link org.springframework.batch.core.step.item.ChunkTaskExecutorItemWriter}
  */
-@Deprecated(since = "6.0.4")
+@Deprecated(since = "6.1")
 public class ChunkTaskExecutorItemWriter<T>
 		extends org.springframework.batch.core.step.item.ChunkTaskExecutorItemWriter<T> {
 

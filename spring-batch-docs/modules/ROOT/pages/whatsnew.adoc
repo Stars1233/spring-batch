@@ -8,6 +8,7 @@ Spring Batch 6.1 includes the following features and improvements:
 * xref:whatsnew.adoc#dependencies-upgrade[Dependencies upgrade]
 * xref:whatsnew.adoc#collection-prefix-for-the-mongodb-job-repository[Collection prefix for the MongoDB job repository]
 * xref:whatsnew.adoc#default-conversion-service-based-on-defaultformattingconversionservice[Default conversion service based on `DefaultFormattingConversionService`]
+* xref:whatsnew.adoc#async-processing-apis-and-local-chunking-moved-to-core[Async processing APIs and local chunking moved to `spring-batch-core`]
 * xref:whatsnew.adoc#deprecations[Deprecations]
 
 [[dependencies-upgrade]]
@@ -76,6 +77,36 @@ As a result, the previous custom converters (`DateToStringConverter`, `StringToD
 `StringToLocalDateTimeConverter`) are now deprecated. See the
 xref:whatsnew.adoc#deprecations[Deprecations] section for more details.
 
+[[async-processing-apis-and-local-chunking-moved-to-core]]
+== Async processing APIs and local chunking moved to `spring-batch-core`
+
+`AsyncItemProcessor`, `AsyncItemWriter`, and `ChunkTaskExecutorItemWriter` (used for
+local chunking) have been moved from `spring-batch-integration` to
+`org.springframework.batch.core.step.item` in `spring-batch-core`. These APIs only rely
+on a `TaskExecutor` and have no dependency on Spring Integration, so they no longer need
+to live in the integration module. This lets applications use asynchronous item
+processing and local chunking without pulling in `spring-batch-integration` and its
+transitive dependencies.
+
+This is a packaging change only, and no functional changes are introduced. The classes
+in `spring-batch-integration` are kept as deprecated subclasses of their new counterparts
+in `spring-batch-core` for backward compatibility, and will be removed in a future
+release. Existing applications continue to work as-is, but are encouraged to migrate to
+the new package:
+
+[source, java]
+----
+// before
+import org.springframework.batch.integration.async.AsyncItemProcessor;
+import org.springframework.batch.integration.async.AsyncItemWriter;
+import org.springframework.batch.integration.chunk.ChunkTaskExecutorItemWriter;
+
+// after
+import org.springframework.batch.core.step.item.AsyncItemProcessor;
+import org.springframework.batch.core.step.item.AsyncItemWriter;
+import org.springframework.batch.core.step.item.ChunkTaskExecutorItemWriter;
+----
+
 [[deprecations]]
 == Deprecations
 
@@ -87,3 +118,4 @@ The following features have been deprecated in Spring Batch 6.1:
 * Deprecate `JobExecution#getJobInstanceId()` in favor of `JobExecution#getJobInstance()`, scheduled for removal in version 7.0
 * Deprecate `RepositoryItemReader#setSorts(Map)` and `RepositoryItemReader#setRepository(PagingAndSortingRepository)` in favor of passing the sorts and the repository to the constructor, scheduled for removal in version 7.0
 * Deprecate `RepositoryItemWriter#setRepository(CrudRepository)` in favor of passing the repository to the constructor, scheduled for removal in version 7.0
+* Deprecate `org.springframework.batch.integration.async.AsyncItemProcessor`, `org.springframework.batch.integration.async.AsyncItemWriter`, and `org.springframework.batch.integration.chunk.ChunkTaskExecutorItemWriter` in favor of their counterparts in `org.springframework.batch.core.step.item`, see the xref:whatsnew.adoc#async-processing-apis-and-local-chunking-moved-to-core[Async processing APIs and local chunking moved to `spring-batch-core`] section for more details

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2026 the original author or authors.
+ * Copyright 2014-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import org.springframework.batch.infrastructure.item.ItemWriter;
 
 /**
  * @param <T> the output item type
- * @deprecated since 6.0.4 in favor of
+ * @deprecated since 6.1 in favor of
  * {@link org.springframework.batch.core.step.item.AsyncItemWriter}
  */
-@Deprecated(since = "6.0.4")
+@Deprecated(since = "6.1")
 public class AsyncItemWriter<T> extends org.springframework.batch.core.step.item.AsyncItemWriter<T> {
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2026 the original author or authors.
+ * Copyright 2006-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import org.springframework.batch.infrastructure.item.ItemProcessor;
  * @author Mahmoud Ben Hassine
  * @param <I> the input object type
  * @param <O> the output object type
- * @deprecated since 6.0.4 in favor of
+ * @deprecated since 6.1 in favor of
  * {@link org.springframework.batch.core.step.item.AsyncItemProcessor}
  */
-@Deprecated(since = "6.0.4")
+@Deprecated(since = "6.1")
 public class AsyncItemProcessor<I, O> extends org.springframework.batch.core.step.item.AsyncItemProcessor<I, O> {
 
 	/**

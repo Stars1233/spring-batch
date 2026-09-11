@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2025 the original author or authors.
+ * Copyright 2006-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.springframework.util.Assert;
  * @param <I> the input object type
  * @param <O> the output object type (will be wrapped in a Future)
  * @see AsyncItemWriter
+ * @since 6.1.0
  */
 public class AsyncItemProcessor<I, O> implements ItemProcessor<I, Future<O>> {
 
@@ -54,7 +55,6 @@ public class AsyncItemProcessor<I, O> implements ItemProcessor<I, Future<O>> {
 	/**
 	 * Create a new {@link AsyncItemProcessor} with the delegate {@link ItemProcessor}.
 	 * @param delegate the {@link ItemProcessor} to use as a delegate
-	 * @since 6.0
 	 */
 	public AsyncItemProcessor(ItemProcessor<I, O> delegate) {
 		Assert.notNull(delegate, "The delegate ItemProcessor must not be null");

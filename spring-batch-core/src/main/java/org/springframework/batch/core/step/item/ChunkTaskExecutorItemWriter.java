@@ -65,7 +65,7 @@ import org.springframework.retry.RetryException;
  *
  * @param <T> type of items
  * @author Mahmoud Ben Hassine
- * @since 6.0
+ * @since 6.1.0
  */
 public class ChunkTaskExecutorItemWriter<T> implements ItemWriter<T>, StepExecutionListener {
 
@@ -73,8 +73,6 @@ public class ChunkTaskExecutorItemWriter<T> implements ItemWriter<T>, StepExecut
 
 	@SuppressWarnings("NullAway.Init")
 	private StepExecution stepExecution;
-
-	private int sequence;
 
 	private final TaskExecutor taskExecutor;
 
@@ -134,7 +132,6 @@ public class ChunkTaskExecutorItemWriter<T> implements ItemWriter<T>, StepExecut
 	public void beforeStep(StepExecution stepExecution) {
 		this.stepExecution = stepExecution;
 		this.responses.clear();
-		this.sequence = 0;
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2025 the original author or authors.
+ * Copyright 2014-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,18 @@ import org.springframework.batch.infrastructure.item.ItemStreamWriter;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.util.Assert;
 
+/**
+ * An {@link ItemStreamWriter} that unwraps a {@link Future} produced by an
+ * {@link AsyncItemProcessor} and delegates the unwrapped items to a nested
+ * {@link ItemWriter}.
+ *
+ * @author Dave Syer
+ * @author Michael Minella
+ * @author Mahmoud Ben Hassine
+ * @param <T> the output item type
+ * @see AsyncItemProcessor
+ * @since 6.1.0
+ */
 public class AsyncItemWriter<T> implements ItemStreamWriter<Future<T>> {
 
 	private static final Log logger = LogFactory.getLog(AsyncItemWriter.class);
@@ -41,7 +53,6 @@ public class AsyncItemWriter<T> implements ItemStreamWriter<Future<T>> {
 	/**
 	 * Create a new instance of {@link AsyncItemWriter} with the provided delegate.
 	 * @param delegate the delegate item writer
-	 * @since 6.0
 	 */
 	public AsyncItemWriter(ItemWriter<T> delegate) {
 		Assert.notNull(delegate, "The delegate ItemWriter must not be null");
