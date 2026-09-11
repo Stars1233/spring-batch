@@ -9,6 +9,7 @@ Spring Batch 6.1 includes the following features and improvements:
 * xref:whatsnew.adoc#collection-prefix-for-the-mongodb-job-repository[Collection prefix for the MongoDB job repository]
 * xref:whatsnew.adoc#default-conversion-service-based-on-defaultformattingconversionservice[Default conversion service based on `DefaultFormattingConversionService`]
 * xref:whatsnew.adoc#async-processing-apis-and-local-chunking-moved-to-core[Async processing APIs and local chunking moved to `spring-batch-core`]
+* xref:whatsnew.adoc#flushing-support-in-repositoryitemwriter[Flushing support in `RepositoryItemWriter`]
 * xref:whatsnew.adoc#deprecations[Deprecations]
 
 [[dependencies-upgrade]]
@@ -106,6 +107,48 @@ import org.springframework.batch.core.step.item.AsyncItemProcessor;
 import org.springframework.batch.core.step.item.AsyncItemWriter;
 import org.springframework.batch.core.step.item.ChunkTaskExecutorItemWriter;
 ----
+
+[[flushing-support-in-repositoryitemwriter]]
+== Flushing support in `RepositoryItemWriter`
+
+`RepositoryItemWriter` now supports flushing the underlying Spring Data repository after
+writing a chunk, in two ways:
+
+* If the repository exposes a single method that both saves and flushes items, such as
+`JpaRepository#saveAllAndFlush(Iterable)`, that method name can be set with
+`setMethodName`. `RepositoryItemWriter` now detects, once at initialization, whether the
+named method accepts an `Iterable` (in which case it is invoked once with the whole
+chunk) or a single item (in which case it is invoked once per item, as before):
+
+[source, java]
+----
+RepositoryItemWriter<Foo> writer = new RepositoryItemWriter<>(jpaRepository);
+writer.setMethodName("saveAllAndFlush");
+----
+
+* If saving and flushing are separate operations, the new `flush` method can be
+overridden in a subclass to flush the repository after the chunk has been written. The
+`repository` field is now `protected` so that subclasses can access it directly:
+
+[source, java]
+----
+public class FlushingRepositoryItemWriter<T> extends RepositoryItemWriter<T> {
+
+	public FlushingRepositoryItemWriter(JpaRepository<T, ?> repository) {
+		super(repository);
+	}
+
+	@Override
+	protected void flush() {
+		((JpaRepository<T, ?>) this.repository).flush();
+	}
+
+}
+----
+
+For more details, please refer to the
+xref:readers-and-writers/item-reader-writer-implementations.adoc#repositoryItemWriter[`RepositoryItemWriter`]
+section.
 
 [[deprecations]]
 == Deprecations
